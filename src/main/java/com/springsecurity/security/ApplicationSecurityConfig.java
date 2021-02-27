@@ -12,6 +12,9 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
+import static com.springsecurity.security.ApplicationUserRole.ADMIN;
+import static com.springsecurity.security.ApplicationUserRole.STUDENT;
+
 @Configuration
 @EnableWebSecurity
 public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
@@ -28,8 +31,8 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
     protected void configure(HttpSecurity http) throws Exception {
         http
                 .authorizeRequests()
-                .antMatchers("/", "index", "/css/*", "/js/*")
-                .permitAll()
+                .antMatchers("/", "index", "/css/*", "/js/*").permitAll()
+                .antMatchers("/api/**").hasRole(STUDENT.name())
                 .anyRequest()
                 .authenticated()
                 .and()
@@ -42,11 +45,18 @@ public class ApplicationSecurityConfig extends WebSecurityConfigurerAdapter {
         UserDetails userAkash = User.builder()
                 .username("akash")
                 .password(passwordEncoder.encode("password"))
-                .roles("STUDENT")
+                .roles(STUDENT.name()) //ROLE_STUDENT
+                .build();
+
+        UserDetails userNupur = User.builder()
+                .username("nupur")
+                .password(passwordEncoder.encode("password"))
+                .roles(ADMIN.name()) //ROLE_ADMIN
                 .build();
 
         return new InMemoryUserDetailsManager(
-                userAkash
+                userAkash,
+                userNupur
         );
     }
 }
